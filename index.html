@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mostrar Pedidos</title>
+    
+    <!-- Agrega el script de Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
+        import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore.js";
+
+        // Configura tu objeto de configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyD2Pysgp_7IYKa8b3VN3wG55ly0saR8AMU",
+            authDomain: "proyecto-bar-b79c8.firebaseapp.com",
+            projectId: "proyecto-bar-b79c8",
+            storageBucket: "proyecto-bar-b79c8.appspot.com",
+            messagingSenderId: "629613959942",
+            appId: "1:629613959942:web:5eee0d55059f6be32a9c87"
+        };
+
+        // Inicializa Firebase
+        const app = initializeApp(firebaseConfig);
+
+        // Inicializa Firestore
+        const db = getFirestore(app);
+
+        // Escucha cambios en la colección "pedidos"
+        onSnapshot(collection(db, "pedidos"), (querySnapshot) => {
+            // Limpia el contenido existente antes de agregar nuevos datos
+            document.getElementById("contenedorPedidos").innerHTML = "";
+
+            // Itera sobre los documentos de la colección
+            querySnapshot.forEach((doc) => {
+                // Obtén los datos del documento
+                const pedido = doc.data();
+                
+                // Agrega el contenido a tu contenedor HTML
+                document.getElementById("contenedorPedidos").innerHTML +=
+                    `<p>Mesa: ${pedido.mesa}, Pedido: ${pedido.pedido}, Precio: ${pedido.precio}</p>`;
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Mostrar Pedidos</h1>
+    <div id="contenedorPedidos"></div>
+</body>
+</html>
