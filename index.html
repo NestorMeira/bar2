@@ -25,9 +25,10 @@
 
         // Inicializa Firestore
         const db = getFirestore(app);
+
         function formatearFecha(timestamp) {
-            const fecha = new Date(timestamp * 1000); // Multiplicar por 1000 para convertir segundos a milisegundos
-            const options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };
+            const fecha = new Date(timestamp * 1000);
+            const options = { day: 'numeric', month: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };
             return fecha.toLocaleDateString('es-ES', options);
         }
 
@@ -37,34 +38,49 @@
             const contenedorPedidos = document.getElementById("contenedorPedidos");
             contenedorPedidos.innerHTML = "";
 
-            // Itera sobre los documentos de la colección
+            // Almacena los documentos en un array y los ordena por timestamp (en orden descendente)
+            const pedidosArray = [];
             querySnapshot.forEach((doc) => {
-                // Obtén los datos del documento
+                pedidosArray.push(doc);
+            });
+
+            pedidosArray.sort((a, b) => {
+                return b.data().timestamp.seconds - a.data().timestamp.seconds;
+            });
+
+            // Itera sobre los documentos ordenados
+            pedidosArray.forEach((doc) => {
                 const pedido = doc.data();
                 
                 // Agrega el contenido a tu contenedor HTML
                 const detallePedido = document.createElement("div");
                 detallePedido.classList.add('info');
-                
-                Object.entries(pedido.productos).forEach(([productoKey, producto]) => {
+
+                // Agregar la información de la mesa y la hora
+                detallePedido.innerHTML = `
+                    <h3>MESA: ${pedido.numeroMesa}</h3>
+                    <h4> ${formatearFecha(pedido.timestamp.seconds)}</h4>
+                `;
+
+                // Ordenar los productos por nombre antes de presentarlos
+                const productosOrdenados = Object.entries(pedido.productos).sort((a, b) => {
+                    return a[1].nombre.localeCompare(b[1].nombre);
+                });
+
+                // Iterar sobre los productos ordenados y agregar la información de nombre, cantidad y precio
+                productosOrdenados.forEach(([productoKey, producto]) => {
                     const productoInfo = document.createElement("div");
                     productoInfo.classList.add('detalle');
                     productoInfo.innerHTML = `
-                    
-                    <h3>${producto.nombre}:</h2>
-                     <h4>Cantidad: ${producto.cantidad}</h4> 
-                     <h4>Precio: $${producto.presio}</h4>
-                     <h4 class="total"> Total: ${producto.precioTotal} </h4>`;
-
-                   contenedorPedidos.appendChild(productoInfo);
+                        <p>${producto.nombre} ${producto.cantidad} = $${producto.presio}</p>
+                    `;
+                    detallePedido.appendChild(productoInfo);
                 });
 
+                // Agregar el total al detalle del pedido
+                detallePedido.innerHTML += `<h3>Total: $${pedido.precioTotal}</h3>`;
 
-                detallePedido.innerHTML=`
-                    <h3>Hora del pedido: ${formatearFecha(pedido.timestamp.seconds)}</>
-                    <h3>MESA: ${pedido.numeroMesa}</>
-                    <h3>Total del pedido: ${pedido.precioTotal}</>`
-
+                // Agregar el detalle del pedido al contenedor principal
                 contenedorPedidos.appendChild(detallePedido);
             });
         });
