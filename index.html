@@ -76,15 +76,20 @@
                     `;
                     detallePedido.appendChild(productoInfo);
                 });
-
-                detallePedido.innerHTML += `<h3>Total: $${pedido.precioTotal}</h3>`;
+                detallePedido.innerHTML += `<h3>Total: $${pedido.precioTotal}</h3> <button class='ok-button'>OK</button>`;
 
                 contenedorPedidos.appendChild(detallePedido);
+                detallePedido.querySelector('.ok-button').addEventListener('click', function () {
+    togglePedidoColor(this);
+});
             }
         });
     });
 }
-
+function togglePedidoColor(button) {
+    const detallePedido = button.closest('.info');
+    detallePedido.classList.toggle('pedido-gris');
+}
 
         // Listener para cambios en la selección del número de mesa
         document.getElementById("numeroMesa").addEventListener("change", actualizarPedidos);
@@ -107,6 +112,16 @@
     </script>
 </head>
 <body>
+    <div class="mesas">
+        <h4>Mesas habilitadas</h4>
+        <input type="checkbox"class="mesa-btn" name="mesa" value="1">1
+        <input type="checkbox" class="mesa-btn" name="mesa" value="2">2
+        <input type="checkbox" class="mesa-btn" name="mesa" value="3">3
+        <input type="checkbox" class="mesa-btn" name="mesa" value="4">4
+        <input type="checkbox" class="mesa-btn" name="mesa" value="5">5
+        <input type="checkbox" class="mesa-btn" name="mesa" value="6">6
+        <input type="checkbox" class="mesa-btn" name="mesa" value="7">7
+    </div>
     <h1>Mostrar Pedidos</h1>
     <form id="filtroForm">
         <label for="numeroMesa">MESA:</label>
